@@ -5,10 +5,10 @@ import { AuthenticationGuard } from './authentication/authentication.guard';
 import { LoginComponent } from './authentication/components/login/login.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/authentication', pathMatch: 'full', canActivate: [AuthenticationGuard] },
+  { path: '', redirectTo: '/home', pathMatch: 'full', canActivate: [AuthenticationGuard] },
   { path: 'home', component: AppComponent, canActivate: [AuthenticationGuard] },
   { path: 'authentication', component: LoginComponent },
-  { path: 'null', redirectTo: '', pathMatch: 'full' },
+  { path: 'null', redirectTo: '/authentication', pathMatch: 'full' },
 ];
 
 @NgModule({

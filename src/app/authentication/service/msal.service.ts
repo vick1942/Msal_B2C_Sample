@@ -5,26 +5,44 @@ import { environment } from '../../../environments/environment';
 @Injectable()
 export class MSALService {  
    
+isErrorFound = false;
 private applicationConfig: any = {
-    clientID: '****-*********-*****************',
-    authority: 'https://login.microsoftonline.com/tfp/*******/B2C_1_SignUpOrSignInPolicy',
-    b2cScopes: ['https://********/user_impersonation'],
-    redirectUrl: 'https://localhost:4200/redirect.html'        
-};
+   clientID: '****-*********-*****************',
+   authority: 'https://login.microsoftonline.com/tfp/*******/B2C_1_SignUpOrSignInPolicy',
+  passwordauthority: 'https://login.microsoftonline.com/tfp/*******/B2C_1_PasswordReset', 
+  b2cScopes: ['https://{environment}/user_impersonation', 'https://{environment}/api/openid'], 
+  redirectUrl: 'http://localhost:4200/authentication', 
+  passwordReset: 'https://{environment}/oauth2/v2.0/authorize?p=B2C_1_PasswordReset'
+   };
+   
 
-
+   _access_token: any;
+   accessToken: string;
     private app: any;
     public user: any;
-    constructor() {
+    constructor() {     
         this.app = new UserAgentApplication(this.applicationConfig.clientID, this.applicationConfig.authority,
-            (errorDesc, token, error, tokenType) => {
-               console.log(token);
-            }, { redirectUri: this.applicationConfig.redirectUrl });     
+            this.authCallback.bind(this),
+            {
+              redirectUri: this.applicationConfig.redirectUrl, validateAuthority: false
+            });
+      
     }
-    public login() {
+    public login() {      
         let tokenData = '';
-        this.app.loginRedirect(this.applicationConfig.b2cScopes).then(data => {tokenData = data; });
+        this.app.loginRedirect(this.applicationConfig.b2cScopes).then(data => {tokenData = data; });     
     }
+
+    private authCallback(errorDesc: any, token: any, error: any, tokenType: any) {    
+        if (error) {
+          if (errorDesc.indexOf('AADB2C90118') > -1){           
+            const clientApp = window.msal as UserAgentApplication;
+            const  resetPassword =  this.applicationConfig.passwordauthority;         
+            this.app = new UserAgentApplication(this.applicationConfig.clientID,resetPassword, null);
+            this.app.loginRedirect(this.applicationConfig.b2cScopes);
+          }       
+        }
+      }     
 
     public getUser() {
         const user = this.app.getUser();

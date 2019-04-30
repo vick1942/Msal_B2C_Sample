@@ -12,9 +12,10 @@ export class AuthService {
         return token;
     }
 
+    
     public login() {
         const token = this.getToken();
-        if (token == null || token === undefined || token === 'null') {
+        if (token == null || token === undefined || token === 'null' || token === '') {
             this.msalService.login();
         }
     }
@@ -26,5 +27,9 @@ export class AuthService {
 
     public collectFailedRequest(request): void {
         this.cachedRequests.push(request);
+    }
+
+    public logout(){
+        this.msalService.logout();
     }
 }

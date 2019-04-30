@@ -18,4 +18,8 @@ export class AuthenticationSandbox {
     public getUser(): Observable<any> {
         return this.authService.getTokenDecoded();
     }
+
+    public logout(): void {
+        this.authService.logout();
+    }
 }
